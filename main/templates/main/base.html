@@ -1,0 +1,379 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ENFANTS RICHES DEPRIMERS{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"defer ></script>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        } 
+    </style>
+
+        <body> {
+        font-family: 'Inter', sans-serif;
+        }
+        
+        .product-image {
+            transition: transform 0.3s ease;
+        }   
+
+        .product-card.hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .naw-link {
+            position: relative;
+            transition: color 0.3s ease;
+        } 
+        
+        .naw-link:hover::after {
+            content: '';
+            position: absolute; 
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: black;
+        }   
+
+        .naw-link:active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: black;
+        }
+
+        /* Mobile menyu styes*/
+        .mobile-menu {
+            transforms: translateX(-100%);
+            transition: transform 0.3s ease-in-out;  
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }       
+
+        .humburger {
+            cursor: pointer;
+        }   
+
+        .humburger span {
+            display: block;
+            width: 25px;
+            height: 2px;
+            margin: 5px 0;
+            background-color: black;
+            margin: 5px 0;
+            transition: 0.3s;
+        }  
+        
+        .humburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(-5px, 6px);
+        }   
+
+        .humburger.active span:nth-child(2) {
+            opacity: 0;
+        }   
+
+        .humburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(-5px, -6px);
+        } 
+        
+        /*Owerly*/
+
+        .overly {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }   
+
+        .overly.active {
+            opacity: 1;
+            visibility: visible;
+        }   
+
+        /*HTMX loading indicator*/
+        .htmx-indicator {
+            opacity: 0;
+            transition: opacity 200ms ease-in;
+            
+        }   
+
+        .htmx-request .htmx-indicator {
+            opacity: 1;
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-white">
+    <! --  Mobile Menyu Overly -->
+    <div id = "overly" class="overly fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+    <! -- Mobile Menyu -->
+    <div id="mobileMenu" class="mobile-menu fixed top-0 left-0 w-80 h-full bg-white z-50 p-6 md:hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-lg font-bold traking-tight">
+                    ENFANTS RICHES <br>
+                    DEPRIMERS
+                </h2>
+                <button id="closeMenu" class="humburger active ">
+                    <span></span>
+                    <span></span>
+                    <span></span>   
+                    </button>
+
+            </div>
+
+            <nav class="space-y-6">
+                <a href="{% url 'main:index' %}"
+                    hx-get="{% url 'main:index' %}"
+                    hx-target="{main-content}"
+                    hx-push-url="true"
+                    class="mobile-naw-link block text-lg font-medium text-gray-900 hover:text-gray-700">
+                    Home
+                </a>
+                {% for category in categories %}
+                <a href="{% url 'main:category' category.slug %}"
+                    hx-get="{% url 'main:category' category.slug %}"
+                    hx-target="{main-content}"
+                    hx-push-url="true"
+                    class="mobile-naw-link block text-lg font-medium text-gray-900 hover:text-gray-700">
+                    {{ category.name upper
+                </a>
+                {% endfor %}    
+            </nav>
+
+            </div class="mt-8 space-y-4">
+                <a href="#" class="block text-sm font-medium text-gray-900 hover:text-gray-700">Login
+
+                </a>
+                <a href="#" class="block text-sm font-medium text-gray-900 hover:text-gray-700">Register
+                ACCOUNT   
+                </a>
+                <a href="#" id="mobileCart" class="block text-sm font-medium text-gray-900 hover:text-gray-700">Cart (0)</a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 border-b border-gray-200">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Mobile Menyu Button-->
+                <button id="menuToggle" class="humburger md:hidden">
+                    <span></span>
+                    <span></span>
+                    <span></span> 
+                </button>
+
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <a href="{% url 'main:index' %}" 
+                           hx-get="{% url 'main:index' %}"
+                           hx-target="{main-content}"
+                           hx-push-url="true">
+                           <h1 class="text-2xl font-bold traking-tight">
+                                ENFANTS RICHES <br>
+                                DEPRIMERS
+                            </h1>
+                        </a>
+                    </div>
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="{% url 'main:index' %}"
+                        hx-get="{% url 'main:index' %}"
+                        hx-target="{main-content}"
+                        hx-push-url="true"
+                        class="text-lg font-medium text-gray-900 hover:text-gray-700">
+                        Home
+                    </a>
+                    {% for category in categories %}
+                    <a href="{% url 'main:category' category.slug %}"
+                        hx-get="{% url 'main:category' category.slug %}"
+                        hx-target="{main-content}"
+                        hx-push-url="true"
+                        class="text-lg font-medium text-gray-900 hover:text-gray-700">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </nav>  
+                <!-- Right side links -->
+                 <div class="hidden md:flex items-center space-x-6">
+                    <div class="relative" id="mobile-search-wrapper">
+                        <button id="mobile-search-toggle"> 
+                            <hx-get="{% url 'main:catalog_all' %}"?show_search=true
+                            hx-target="#mobile-search-wrapper"
+                            hx-swap="innerHTML"
+                            class="text-gray-900 hover:text-gray-700">
+                            Search
+                        </button>
+                    </div>
+                    <a href="#" class="text-sm font-medium text-gray-900 hover:text-gray-700">Login
+                        ACCOUNT
+                    </a>
+                    <a href="#" id="desktopCart" class="text-sm font-medium text-gray-900 uppercase hover:text-gray-700 "></a>
+                </div>
+            
+                
+                <a href="#" id="mobileCart" class="md:hidden text-sm font-medium text-gray-900 hover:text-gray-700">Cart (0)</a>
+<!-- Mobile Cart Icon -->
+                <div class="md:hidden">
+                    <a href="#" id="mobileCartHeader" class="text-gray-900 hover:text-gray-700">
+                </div>
+            </div>
+        </div>
+        </header>
+        <div id="main-content">
+            {% block content %}
+            <!-- Default home content -->
+            <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="text-center  py-20">
+                    <h2 class="text-4xl font-bold traking-tight text-gray-900 mb-4>
+                        ENFANTS RICHES DEPRIMERS
+                    </h2>
+                    <p class="text-lg text-gray-700 mb-8">
+                        Select a category to browse our collection
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {% for category in categories %}
+                        <a href="{% url 'main:category' category.slug %}"
+                            hx-get="{% url 'main:category' category.slug %}"
+                            hx-target="{main-content}"
+                            hx-push-url="true"
+                            class="block border border-gray-200 rounded-lg p-4 hover:shadow-lg transition duration-300">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                {{ category.name }}
+                            </h3>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </main>
+            {% endblock %}
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+               function OpenMobileMenu() {
+                   overly.classList.add('active');
+                   menuToggle.classList.add('active');
+                   document.body.style.overflow = 'hidden';
+                }
+                   fuunction CloseMobileMenu() {
+                       overly.classList.remove('active');
+                       menuToggle.classList.remove('active');
+                       document.body.style.overflow = 'auto';
+                   }
+                       menuToggle.addEventListener('click', function() {
+                           if (menuToggle.classList.contains('active')) {
+                               CloseMobileMenu();
+                           } else {
+                               OpenMobileMenu();
+                           }
+                       });  
+
+                       //Close mobile menu after Navigation
+                    document.addEventListener('htmx:afterSwap', function(evt) {
+                        if (evt.detail.target.id === 'main-content') {
+                            CloseMobileMenu();
+                        }
+                    });
+
+                    // closeMenu
+
+                    window.updateHeaderCart=function(cartItemCount) {
+                        const desktopCart = document.getElementById('desktopCart');
+                        const mobileCart = document.getElementById('mobileCart');
+                        desktopCart.textContent = `Cart (${cartItemCount})`;
+                        mobileCart.textContent = `Cart (${cartItemCount})`;
+                        if (cartItemCount > 0) {
+                            desktopCart.classList.add('font-bold');
+                            mobileCart.classList.add('font-bold');
+                        } else {
+                            desktopCart.classList.remove('font-bold');
+                            mobileCart.classList.remove('font-bold');
+                        }
+
+                    };
+            });
+        </script>
+
+</body>
+</html>
+                   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+                   </body>
