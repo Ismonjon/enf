@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.text  import slugify
 
-s
+
 
 class Size(models.Model):
     name = models.CharField(max_length=20)
